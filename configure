@@ -1,0 +1,37 @@
+#!/bin/sh
+
+CXXFLAGS="-std=c++14 -Wall -Werror -Wextra -pedantic -O3 \
+          -march=native -DNDEBUG"
+BUILD_TYPE=Release
+
+usage() {
+    cat << EOF
+$0
+    --with-debug          Add debug flags
+    --with-bench          Add flags for micro benchmarking
+    --with-optimizations  Add optimizations flags
+    --help                Display this message
+EOF
+}
+
+for arg in "$@"
+do
+    case "$arg" in
+        --with-debug)
+            CXXFLAGS="-std=c++14 -Wall -Werror -Wextra \
+                      -pedantic -O0 -g3 -gdwarf-2"
+            BUILD_TYPE=Debug
+            ;;
+        --with-bench)
+            CXXFLAGS="-std=c++14 -Wall -Werror -Wextra \
+                      -pedantic -O3 -fno-omit-frame-pointer"
+            ;;
+        --help)
+            usage
+            ;;
+    esac
+done
+
+echo "set(CMAKE_CXX_FLAGS \"$CXXFLAGS\")" > common.cmake
+echo "set(CMAKE_BUILD_TYPE $BUILD_TYPE)" >> common.cmake
+echo "set(CMAKE_CXX_COMPILER clang++)" >> common.cmake
