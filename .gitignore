@@ -1,2 +1,4 @@
 build
 common.cmake
+TextMiningApp
+TextMiningCompiler
