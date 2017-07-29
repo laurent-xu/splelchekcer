@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include "trie.hh"
+#include "pack_trie.hh"
 
 void usage(const std::string& bin_name)
 {
@@ -25,11 +26,9 @@ int main(int argc, char* argv[])
       std::cerr << "Couldn't open the file: " << input << std::endl;
       return 1;
     }
-    auto trie = Trie();
-    trie.build(in_stream);
+    auto t = trie();
+    t.build(in_stream);
     in_stream.close();
-
-    trie.to_dot(std::cout);
 
     auto out_stream = std::ofstream(output);
     if (!out_stream.is_open())
@@ -37,8 +36,7 @@ int main(int argc, char* argv[])
       std::cerr << "Couldn't open the file: " << output << std::endl;
       return 1;
     }
-    //compact_trie ct;
-    //trie->serialize(out_stream);
+    compact_trie::serialize(out_stream, t.root_.edges);
     out_stream.close();
 
     return 0;
