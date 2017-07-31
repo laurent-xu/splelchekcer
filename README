@@ -52,24 +52,21 @@ Two search algorithm are used :
   - For the exact search: as soon as one letter is different words do not match
   so we don't need to build a table. This algorithm is way faster.
 
-## Listez l’ensemble des tests effectués sur votre programme
-  (en plus des units tests)
+## Listez l’ensemble des tests effectués sur votre programme (en plus des units tests)
 
 A test on serialization is done:
 we serialize first, then deserialize the trie and reserialize it again.
 Afterwards, a comparison is made between the two serialization. And finally
 we test it against the reference to validate it.
 
-## Avez-vous détecté des cas où la correction par distance ne fonctionnait pas
-(même avec une distance élevée) ?
+## Avez-vous détecté des cas où la correction par distance ne fonctionnait pas (même avec une distance élevée) ?
 
 Damerau levenshtein as implemented does not take into account
 the position of keys on the keyboard. For instance 'qwerty' and 'asdfgh' are
 fairly close on the keyboard but are far away using the Damerau distance. It is 
 a limitation of the algorithm we use where it is not as efficient as expected considering the input to write words.
 
-## Quelle est la structure de données que vous avez implémentée dans votre
-projet, pourquoi ?
+## Quelle est la structure de données que vous avez implémentée dans votre projet, pourquoi ?
 
 We use a radix trie because it is more compact and its usage reduces
  the number of redirections. It speeds up research and uses less memory.
@@ -91,8 +88,7 @@ We must solve alignment issues when serializing the tire using `__attribute__(pa
 We should use more padding between edges so that one read would fit better into a cache.
 We should use a more compact representation for the trie.
 
-## Que manque-t-il à votre correcteur orthographique pour qu’il soit à l’état
-de l’art ?
+## Que manque-t-il à votre correcteur orthographique pour qu’il soit à l’état de l’art ?
 
 It misses how to handle position of letters on the keyboard, using grammar
  to more efficiently link words. It also needs function of words and 
