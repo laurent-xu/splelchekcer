@@ -29,14 +29,46 @@ maximum distance.
 
 ## Decrivez les choix de design de votre programme
 
+### TextMiningCompiler
+
+The compiler builds a dynamic radix trie given the dictionary. Nodes and edges
+are not contiguous in memory, we use pointers to make all the traversals. A
+static radix trie is then serialized into a file, we use a representation that
+makes all the data contiguous in memory. Edges and nodes are connected using
+offsets.
+
+### TextMiningApp
+
+On mmap le fichier pour laisser le kernel charger les pages seulement celles dont on a besoin.
+On utilise des offset pour parcourir rapidement la structure. Nous avons privilegie la rapidite
+de parcours en utilisant davantage d'offset que necessaire.
+On utilise deux algorithmes de recherche:
+- Un pour la recherche approximative en utilisant l'algorithme de damereau levenshtein.
+On remplit un tableau ou chaque case nous donne la distance entre un prefixe du mot a corriger
+et un prefixe dún mot du trie. Connaissant la distance maiximale de correction on peut se contenter de ne calculer
+qu'une partie de la diagonale
+- Un pour la recherche exacte: on a pas besoin de construire de tableau des
+lors qu'on rencontre un caractere different, cet algorithme se montre beaucoup plus efficace.
+
 ## Listez l’ensemble des tests effectués sur votre programme (en plus des units tests)
+On serialize deserialize et reserialize le trie et on compare les 2 serialisations
+On se teste contre la ref
 
 ## Avez-vous détecté des cas où la correction par distance ne fonctionnait pas (même avec une distance élevée) ?
+Damerau levenshtein tel quón lá fait ne prend pas en compte less emplacements sur le clavier.
+Par exemple qwerty et asdfgh sont tres eloignes mais tres proches en sur le clavier
 
 ## Quelle est la structure de données que vous avez implémentée dans votre projet, pourquoi ?
+On a implem un radix trie car c'est plus compact et que ca reduit le nombre d'ndirections, ca accelere les recherche et ca prend moins de memoire
 
 ## Proposez un réglage automatique de la distance pour un programme qui prend juste une chaîne de caractères en entrée, donner le processus d’évaluation ainsi que les résultats
+On pourrait utiliser une max distance inversement proportionnelle a la taille du mot tape, avec un coefficient a determiner.
+Ca laisse a l'utilisateur la possibilite de faire des fautes de facons uniformes sur son texte quelle que soit la taille des mots.
 
 ## Comment comptez vous améliorer les performances de votre programme
+Regler les problemes dálignement lies a la serialisation en __attritbute__(packed)
+Ajouter du padding entre les edges pour etre plus cache friendly
+Utiliser une representation plus compacte de notre trie compile
 
 ## Que manque-t-il à votre correcteur orthographique pour qu’il soit à l’état de l’art ?
+Frammaire etc
