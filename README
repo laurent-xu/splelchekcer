@@ -40,10 +40,10 @@ offsets.
 ### TextMiningApp
 
 
-We use mmap to load the serialized radix trie so that the kernel will charge in
-memory only pages we need. To navigate through the structure offset are used to
-be fast. We are using more offset than necessary because
-the priority is on navigation speed inside the structure.
+We use the mmap function to load the serialized radix trie so that the kernel will charge only pages we need in memory.
+To navigate fast enough through the structure offset are used. We are using more offset than necessary because
+we prioritize navigation speed inside the structure.
+
 Two search algorithm are used :
   - One for an estimated search using Damereau-Levenshtein algorithm.
  Knowing the maximal distance we can compute only a part of the diagonal from
@@ -63,41 +63,37 @@ we test it against the reference to validate it.
 ## Avez-vous détecté des cas où la correction par distance ne fonctionnait pas
 (même avec une distance élevée) ?
 
-Damerau levenshtein as implemented do not take into account position of keys
-on the keyboard. For instance 'qwerty' and 'asdfgh' are fairly close on the
-keyboard but are far away using the Damerau distance. It is a limitation of the
-algorithm used where it is not as efficient considering the input to write
-words.
+Damerau levenshtein as implemented does not take into account
+the position of keys on the keyboard. For instance 'qwerty' and 'asdfgh' are
+fairly close on the keyboard but are far away using the Damerau distance. It is 
+a limitation of the algorithm we use where it is not as efficient as expected considering the input to write words.
 
 ## Quelle est la structure de données que vous avez implémentée dans votre
 projet, pourquoi ?
 
-We used a radix trie because it is more compact and its usage reduces the number
-of redirections. It speeds up research and uses less memory.
+We use a radix trie because it is more compact and its usage reduces
+ the number of redirections. It speeds up research and uses less memory.
 
 
-## Proposez un réglage automatique de la distance pour un programme qui prend 
-juste une chaîne de caractères en entrée, donner le processus d’évaluation ainsi
-que les résultats
+## Proposez un réglage automatique de la distance pour un programme qui prend juste une chaîne de caractères en entrée, donner le processus d’évaluation ainsi que les résultats
 
-We could uses a maximum distance which is inversly proportionnal to the word
-size with a coefficient to determine. That way the user could uniformly make
-mistakes and would have adapted answer whatever the size of the word in input.
-To evaluate the results we could try to see the number of suggestion given the
-size of the words, which should stay roughly at the same number. Also some human
-validation could be done using a small number of input words covering a wide
-array of size.
+We could use a maximum distance which is inversly proportionnal to the word size.
+We then adjust it with a coefficient to determine.
+That way the user could uniformly make mistakes and would get adapted 
+answer whatever the size of the input word. To evaluate results we could try to see
+the number of suggestion given the size of the words, which should stay roughly
+at the same number. Also some human validation could be done using a small number
+of input words covering a wide array of size.
 
 ## Comment comptez vous améliorer les performances de votre programme
 
-We must solve alignment issues when serializing the trie using
-attribute((packed)) Use more padding between edges so that one read would fit
-better into a cache. Use a more compact representation for the trie
+We must solve alignment issues when serializing the tire using `__attribute__(packed)`.
+We should use more padding between edges so that one read would fit better into a cache.
+We should use a more compact representation for the trie.
 
 ## Que manque-t-il à votre correcteur orthographique pour qu’il soit à l’état
 de l’art ?
 
-It misses how to handle position of letters on the keyboard, using grammar to
-more efficiently
-link words. It also needs function of words and their semantics meaning and
-finally how to handle punctuation.
+It misses how to handle position of letters on the keyboard, using grammar
+ to more efficiently link words. It also needs function of words and 
+their semantics meaning and finally how to handle punctuation.
