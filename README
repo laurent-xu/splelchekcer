@@ -39,36 +39,65 @@ offsets.
 
 ### TextMiningApp
 
-On mmap le fichier pour laisser le kernel charger les pages seulement celles dont on a besoin.
-On utilise des offset pour parcourir rapidement la structure. Nous avons privilegie la rapidite
-de parcours en utilisant davantage d'offset que necessaire.
-On utilise deux algorithmes de recherche:
-- Un pour la recherche approximative en utilisant l'algorithme de damereau levenshtein.
-On remplit un tableau ou chaque case nous donne la distance entre un prefixe du mot a corriger
-et un prefixe dún mot du trie. Connaissant la distance maiximale de correction on peut se contenter de ne calculer
-qu'une partie de la diagonale
-- Un pour la recherche exacte: on a pas besoin de construire de tableau des
-lors qu'on rencontre un caractere different, cet algorithme se montre beaucoup plus efficace.
 
-## Listez l’ensemble des tests effectués sur votre programme (en plus des units tests)
-On serialize deserialize et reserialize le trie et on compare les 2 serialisations
-On se teste contre la ref
+We use mmap to load the serialized radix trie so that the kernel will charge in
+memory only pages we need. To navigate through the structure offset are used to
+be fast. We are using more offset than necessary because
+the priority is on navigation speed inside the structure.
+Two search algorithm are used :
+  - One for an estimated search using Damereau-Levenshtein algorithm.
+ Knowing the maximal distance we can compute only a part of the diagonal from
+ the table used to compute the distance.
 
-## Avez-vous détecté des cas où la correction par distance ne fonctionnait pas (même avec une distance élevée) ?
-Damerau levenshtein tel quón lá fait ne prend pas en compte less emplacements sur le clavier.
-Par exemple qwerty et asdfgh sont tres eloignes mais tres proches en sur le clavier
+  - For the exact search: as soon as one letter is different words do not match
+  so we don't need to build a table. This algorithm is way faster.
 
-## Quelle est la structure de données que vous avez implémentée dans votre projet, pourquoi ?
-On a implem un radix trie car c'est plus compact et que ca reduit le nombre d'ndirections, ca accelere les recherche et ca prend moins de memoire
+## Listez l’ensemble des tests effectués sur votre programme
+  (en plus des units tests)
 
-## Proposez un réglage automatique de la distance pour un programme qui prend juste une chaîne de caractères en entrée, donner le processus d’évaluation ainsi que les résultats
-On pourrait utiliser une max distance inversement proportionnelle a la taille du mot tape, avec un coefficient a determiner.
-Ca laisse a l'utilisateur la possibilite de faire des fautes de facons uniformes sur son texte quelle que soit la taille des mots.
+A test on serialization is done:
+we serialize first, then deserialize the trie and reserialize it again.
+Afterwards, a comparison is made between the two serialization. And finally
+we test it against the reference to validate it.
+
+## Avez-vous détecté des cas où la correction par distance ne fonctionnait pas
+(même avec une distance élevée) ?
+
+Damerau levenshtein as implemented do not take into account position of keys
+on the keyboard. For instance 'qwerty' and 'asdfgh' are fairly close on the
+keyboard but are far away using the Damerau distance. It is a limitation of the
+algorithm used where it is not as efficient considering the input to write
+words.
+
+## Quelle est la structure de données que vous avez implémentée dans votre
+projet, pourquoi ?
+
+We used a radix trie because it is more compact and its usage reduces the number
+of redirections. It speeds up research and uses less memory.
+
+
+## Proposez un réglage automatique de la distance pour un programme qui prend 
+juste une chaîne de caractères en entrée, donner le processus d’évaluation ainsi
+que les résultats
+
+We could uses a maximum distance which is inversly proportionnal to the word
+size with a coefficient to determine. That way the user could uniformly make
+mistakes and would have adapted answer whatever the size of the word in input.
+To evaluate the results we could try to see the number of suggestion given the
+size of the words, which should stay roughly at the same number. Also some human
+validation could be done using a small number of input words covering a wide
+array of size.
 
 ## Comment comptez vous améliorer les performances de votre programme
-Regler les problemes dálignement lies a la serialisation en __attritbute__(packed)
-Ajouter du padding entre les edges pour etre plus cache friendly
-Utiliser une representation plus compacte de notre trie compile
 
-## Que manque-t-il à votre correcteur orthographique pour qu’il soit à l’état de l’art ?
-Frammaire etc
+We must solve alignment issues when serializing the trie using
+attribute((packed)) Use more padding between edges so that one read would fit
+better into a cache. Use a more compact representation for the trie
+
+## Que manque-t-il à votre correcteur orthographique pour qu’il soit à l’état
+de l’art ?
+
+It misses how to handle position of letters on the keyboard, using grammar to
+more efficiently
+link words. It also needs function of words and their semantics meaning and
+finally how to handle punctuation.
