@@ -8,7 +8,7 @@ static void usage(const std::string& bin_name)
     std::exit(1);
 }
 
-static void format_output(std::ostream& os, const::std::string& word,
+static void format_output(std::ostream& os, const std::string& word,
                           size_t freq)
 {
   if (freq > 0)

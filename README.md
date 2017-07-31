@@ -1,1 +1,1 @@
-# splelchekcer
+README

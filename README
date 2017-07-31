@@ -1,0 +1,42 @@
+#splelchekcer
+
+**splelchekcer** is a spell-checker written in C++. It is based on the
+Damerau-Levenshtein distance working on a precompiled radix trie.
+
+# Build
+
+    $ ./configure && make
+
+# Usage
+* `TextMiningCompiler` takes a dictionary of words and the frequency of these
+words and it returns a compiled trie.
+    $ ./TextMiningCompiler /path/to/words.txt /path/to/dict.bin
+* `TextMiningApp` takes the compiled trie and corrects the words with a given
+maximum distance.
+    $ echo "approx 0 test" | ./TextMiningApp /path/to/dict.bin
+
+# Example
+    $ ./TexMiningCompiler project/word.txt dict.bin
+    $ ./TextMininApp dict.bin
+    > approx 0 test
+    [{"word":"test","freq":49216987,"distance":0}]
+    > approx 1 vnicent
+    [{"word":"vincent","freq":16312153,"distance":1},
+     {"word":"vicent","freq":20025,"distance":1},
+     {"word":"vncent","freq":666,"distance":1}]
+
+# Questions
+
+## Decrivez les choix de design de votre programme
+
+## Listez l’ensemble des tests effectués sur votre programme (en plus des units tests)
+
+## Avez-vous détecté des cas où la correction par distance ne fonctionnait pas (même avec une distance élevée) ?
+
+## Quelle est la structure de données que vous avez implémentée dans votre projet, pourquoi ?
+
+## Proposez un réglage automatique de la distance pour un programme qui prend juste une chaîne de caractères en entrée, donner le processus d’évaluation ainsi que les résultats
+
+## Comment comptez vous améliorer les performances de votre programme
+
+## Que manque-t-il à votre correcteur orthographique pour qu’il soit à l’état de l’art ?
