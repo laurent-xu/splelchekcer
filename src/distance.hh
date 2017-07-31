@@ -24,15 +24,25 @@ class distance
                            int max_distance,
                            compact_info* start_trie)
     {
-      if (table != nullptr)
-        delete[] table;
       word_size = word.size();
       row_len = word_size + 1;
       col_len = word_size + max_distance + 2;
       table_len = row_len * col_len;
-      table = new unsigned[row_len * col_len];
+      if (table_len > real_table_len)
+      {
+        if (table != nullptr)
+          delete[] table;
+        real_table_len = table_len;
+        table = new unsigned[real_table_len];
+      }
 
-      current.clear();
+      if (col_len > real_current_len)
+      {
+        real_current_len = col_len;
+        if (current != nullptr)
+          delete[] current;
+        current = new char[real_current_len];
+      }
       matched_words.clear();
       this->word = std::move(word);
       this->max_distance = max_distance;
@@ -43,7 +53,7 @@ class distance
       print_table();
 #endif
 
-      add_edges(start_trie);
+      add_edges(start_trie, 0);
 
 
       return matched_words;
@@ -103,10 +113,9 @@ class distance
       std::cin.get();
     }
 
-    bool add_char(char c)
+    bool add_char(char c, size_t current_word_len)
     {
-      current.push_back(c);
-      int row = current.size();
+      int row = current_word_len;
       bool continue_searching = false;
       size_t start = std::max({1, row - max_distance});
       size_t end = std::min({static_cast<int>(row_len),
@@ -129,28 +138,30 @@ class distance
       return continue_searching;
     }
 
-    void add_edges(compact_info* first_sibling)
+    void add_edges(compact_info* first_sibling, size_t current_word_len)
     {
-      size_t current_word_len = current.size();
-      auto lol = current;
       for (auto edge: *first_sibling)
       {
+        size_t new_current_word_len = current_word_len;
         bool continue_searching = false;
         char* label_ptr = &edge->label[0];
         while (*label_ptr)
         {
-          continue_searching = add_char(*label_ptr);
+          current[new_current_word_len++] = *label_ptr;
+          continue_searching = add_char(*label_ptr, new_current_word_len);
           if (!continue_searching)
             break;
           ++label_ptr;
         }
-        size_t distance = dist(current.size());
+        size_t distance = dist(new_current_word_len);
         size_t freq = edge->freq;
         if (distance <= static_cast<unsigned>(max_distance) && freq > 0)
+        {
+          current[new_current_word_len] = 0;
           matched_words.push_back({current, freq, distance});
+        }
         if (continue_searching && edge->has_children())
-          add_edges(edge->get_children());
-        current.resize(current_word_len);
+          add_edges(edge->get_children(), new_current_word_len);
       }
     }
 
@@ -178,7 +189,9 @@ class distance
     size_t row_len = 0;
     size_t col_len = 0;
     size_t table_len = 0;
+    size_t real_table_len = 0;
     unsigned* table = nullptr;
-    std::string current;
+    size_t real_current_len = 0;
+    char* current = nullptr;
     std::vector<match> matched_words;
 };
