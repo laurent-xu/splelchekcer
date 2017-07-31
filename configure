@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CXXFLAGS="-std=c++14 -Wall -Werror -Wextra -pedantic -O3 \
-          -march=native -DNDEBUG --fno-exceptions"
+          -march=native -DNDEBUG -fno-exceptions"
 BUILD_TYPE=Release
 
 usage() {
@@ -9,7 +9,6 @@ usage() {
 $0
     --with-debug          Add debug flags
     --with-bench          Add flags for micro benchmarking
-    --with-optimizations  Add optimizations flags
     --help                Display this message
 EOF
 }
@@ -24,7 +23,7 @@ do
             ;;
         --with-bench)
             CXXFLAGS="-std=c++14 -Wall -Werror -Wextra \
-                      -pedantic -O3 -fno-omit-frame-pointer --fno-exceptions"
+                      -pedantic -O3 -fno-omit-frame-pointer -fno-exceptions"
             ;;
         --help)
             usage
@@ -34,4 +33,3 @@ done
 
 echo "set(CMAKE_CXX_FLAGS \"$CXXFLAGS\")" > common.cmake
 echo "set(CMAKE_BUILD_TYPE $BUILD_TYPE)" >> common.cmake
-echo "set(CMAKE_CXX_COMPILER clang++)" >> common.cmake

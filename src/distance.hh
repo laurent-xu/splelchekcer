@@ -109,7 +109,8 @@ class distance
       int row = current.size();
       bool continue_searching = false;
       size_t start = std::max({1, row - max_distance});
-      size_t end = std::min({static_cast<int>(row_len), row + max_distance + 1});
+      size_t end = std::min({static_cast<int>(row_len),
+                            row + max_distance + 1});
       for (size_t i = start; i < end; ++i)
       {
         unsigned above = at(i, row - 1) + 1;
