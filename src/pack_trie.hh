@@ -10,12 +10,13 @@ struct compact_info;
 struct compact_iterator
 {
   public:
-    compact_iterator(char* pos) : pos(pos) {}
+    compact_iterator(void* pos) : pos(pos) {}
 
     compact_iterator& operator++()
     {
-      size_t next_edge = *reinterpret_cast<size_t*>(pos + sizeof(size_t));
-      pos = next_edge ? pos + next_edge : 0;
+      char* ptr = reinterpret_cast<char*>(pos);
+      size_t next_edge = *reinterpret_cast<size_t*>(ptr + sizeof(size_t));
+      pos = next_edge ? reinterpret_cast<void*>(ptr + next_edge) : nullptr;
       return *this;
     }
 
@@ -40,7 +41,7 @@ struct compact_iterator
     }
 
   private:
-    char* pos;
+    void* pos;
 };
 
 struct compact_info
@@ -52,13 +53,13 @@ struct compact_info
 
   compact_iterator begin()
   {
-    char* ptr = reinterpret_cast<char*>(this);
+    void* ptr = reinterpret_cast<void*>(this);
     return compact_iterator(ptr);
   }
 
   compact_iterator end()
   {
-    return compact_iterator(0);
+    return compact_iterator(nullptr);
   }
 
   compact_iterator get_children_it()
@@ -66,7 +67,7 @@ struct compact_info
     if (0 == offset)
       return end();
     char* ptr = reinterpret_cast<char*>(this);
-    return compact_iterator(ptr + offset);
+    return compact_iterator(reinterpret_cast<void*>(ptr + offset));
   }
 
   compact_info* get_children()
@@ -104,19 +105,18 @@ class compact_trie
       file_size_ = s.st_size;
 
       file_ = mmap(NULL, file_size_, PROT_READ, MAP_FILE | MAP_SHARED, fd_, 0);
-      data_ = reinterpret_cast<char*>(file_);
     }
 
     trie to_trie()
     {
       auto result = trie();
-      if (data_ == nullptr)
+      if (file_ == nullptr)
       {
         std::cerr << "Open a file first" << std::endl;
         std::exit(1);
       }
 
-      compact_info *root_edges = reinterpret_cast<compact_info*>(data_);
+      compact_info *root_edges = reinterpret_cast<compact_info*>(file_);
       result.root_.edges = to_trie_node(root_edges);
       return result;
     }
@@ -183,9 +183,13 @@ class compact_trie
       return edges;
     }
 
+    compact_info* get_root()
+    {
+      return reinterpret_cast<compact_info*>(file_);
+    }
+
   private:
     int fd_ = -1;
-    char* data_ = nullptr;
     void* file_ = nullptr;
     size_t file_size_ = -1;
 };
