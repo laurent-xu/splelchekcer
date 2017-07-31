@@ -131,6 +131,7 @@ class distance
     void add_edges(compact_info* first_sibling)
     {
       size_t current_word_len = current.size();
+      auto lol = current;
       for (auto edge: *first_sibling)
       {
         bool continue_searching = false;
@@ -146,7 +147,7 @@ class distance
         size_t freq = edge->freq;
         if (distance <= static_cast<unsigned>(max_distance) && freq > 0)
           matched_words.push_back({current, freq, distance});
-        if (continue_searching)
+        if (continue_searching && edge->has_children())
           add_edges(edge->get_children());
         current.resize(current_word_len);
       }
