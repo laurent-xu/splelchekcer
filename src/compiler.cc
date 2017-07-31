@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     auto input = std::string(argv[1]);
     auto output = std::string(argv[2]);
 
-    auto in_stream = std::ifstream(input);
+    std::ifstream in_stream(input);
     if (!in_stream.is_open())
     {
       std::cerr << "Couldn't open the file: " << input << std::endl;
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     t.build(in_stream);
     in_stream.close();
 
-    auto out_stream = std::ofstream(output);
+    std::ofstream out_stream(output);
     if (!out_stream.is_open())
     {
       std::cerr << "Couldn't open the file: " << output << std::endl;

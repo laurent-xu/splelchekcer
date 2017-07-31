@@ -123,12 +123,8 @@ class distance
         {
           continue_searching = true;
         }
-       //   std::cerr << " min " << min << " end " << end << " start " << start << std::endl;
         at(i, row) = min;
       }
-     // std::cerr << "current " << current << std::endl;
-      //print_table();
-      //std::cin.get();
       return continue_searching;
     }
 
