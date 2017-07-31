@@ -7,6 +7,11 @@
 #include "trie.hh"
 
 struct compact_info;
+
+using freq_t = unsigned;
+using next_edge_t = unsigned;
+using offset_t = size_t;
+
 struct compact_iterator
 {
   public:
@@ -15,7 +20,7 @@ struct compact_iterator
     compact_iterator& operator++()
     {
       char* ptr = reinterpret_cast<char*>(pos);
-      size_t next_edge = *reinterpret_cast<size_t*>(ptr + sizeof(size_t));
+      next_edge_t next_edge = *reinterpret_cast<next_edge_t*>(ptr);
       pos = next_edge ? reinterpret_cast<void*>(ptr + next_edge) : nullptr;
       return *this;
     }
@@ -46,9 +51,9 @@ struct compact_iterator
 
 struct compact_info
 {
-  size_t freq;
-  size_t next_edge;
-  size_t offset;
+  next_edge_t next_edge;
+  freq_t freq;
+  offset_t offset;
   char label[1];
 
   compact_iterator begin()
@@ -125,18 +130,21 @@ class compact_trie
                             const std::vector<edge_t*>& edges)
     {
       auto start_pos = os.tellp();
-      size_t empty_size_t = 0;
+      offset_t node_empty = 0;
+      next_edge_t edge_empty = 0;
       std::vector<std::pair<std::streampos, std::streampos>> offsets_pos;
       for (size_t i = 0; i < edges.size(); ++i)
       {
         auto& edge = *edges[i];
         auto start_edge_pos = os.tellp();
-        os.write(reinterpret_cast<const char*>(&edge.dst->freq),
-                  sizeof(size_t));
         auto next_edge_pos = os.tellp();
-        os.write(reinterpret_cast<const char*>(&empty_size_t), sizeof(size_t));
+        os.write(reinterpret_cast<const char*>(&edge_empty),
+                 sizeof(next_edge_t));
+        os.write(reinterpret_cast<const char*>(&edge.dst->freq),
+                 sizeof(freq_t));
         auto offset_pos = os.tellp();
-        os.write(reinterpret_cast<const char*>(&empty_size_t), sizeof(size_t));
+        os.write(reinterpret_cast<const char*>(&node_empty),
+                 sizeof(offset_t));
         os.write(edge.label.c_str(), edge.label.size() + 1);
         auto end_pos = os.tellp();
         os.seekp(next_edge_pos);
@@ -144,7 +152,7 @@ class compact_trie
         if (i == edges.size() - 1)
           next_edge_offset = 0;
         os.write(reinterpret_cast<const char*>(&next_edge_offset),
-                 sizeof(size_t));
+                 sizeof(next_edge_t));
         os.seekp(end_pos);
         offsets_pos.emplace_back(start_edge_pos, offset_pos);
       }
@@ -161,7 +169,7 @@ class compact_trie
           os.seekp(offset_pos);
           size_t node_offset = node_pos - start_edge_pos;
           os.write(reinterpret_cast<const char*>(&node_offset),
-                   sizeof(size_t));
+                   sizeof(offset_t));
           os.seekp(current_pos);
         }
       }
