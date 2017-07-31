@@ -28,8 +28,8 @@ check: dict $(WORDSOURCE)
 		tests/check.sh $(WORDSOURCE) $$i $(APPNAME) $(REFAPPNAME) $(DICTNAME) $(REFDICTNAME); \
 	done
 
-bench: all $(DICTNAME)
-	tests/bench.sh $(APPNAME) $(WORDSOURCE) $(DICTNAME)
+bench: all $(DICTNAME) $(REFDICTNAME)
+	tests/bench.sh $(APPNAME) $(WORDSOURCE) $(DICTNAME) $(REFAPPNAME) $(REFDICTNAME)
 
 benchref:$(REFDICTNAME)
 	tests/bench.sh $(REFAPPNAME) $(WORDSOURCE) $(REFDICTNAME)
